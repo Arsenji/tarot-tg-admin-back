@@ -44,11 +44,13 @@ app.post('/webhook/telegram', async (req, res) => {
       const text = message.text;
       const userId = message.from.id.toString();
       
-      // Сохраняем сообщение в БД
-      const result = await db.query(
-        'INSERT INTO messages (user_id, text, status) VALUES ($1, $2, $3) RETURNING *',
-        [userId, text, 'new']
-      );
+      // Сохраняем сообщение в БД (если есть подключение)
+      if (process.env.DATABASE_URL) {
+        const result = await db.query(
+          'INSERT INTO messages (user_id, text, status) VALUES ($1, $2, $3) RETURNING *',
+          [userId, text, 'new']
+        );
+      }
       
       // Отправляем уведомление админу
       await telegramService.sendMessageToAdmin(
@@ -86,9 +88,13 @@ app.use('*', (req, res) => {
 // Инициализация и запуск сервера
 async function startServer() {
   try {
-    // Инициализируем базу данных
-    await db.initializeTables();
-    console.log('✅ Database initialized');
+    // Инициализируем базу данных (если есть DATABASE_URL)
+    if (process.env.DATABASE_URL) {
+      await db.initializeTables();
+      console.log('✅ Database initialized');
+    } else {
+      console.log('⚠️ Database URL not configured - running without database');
+    }
 
     // Проверяем подключение к Telegram
     const botInfo = await telegramService.getBotInfo();

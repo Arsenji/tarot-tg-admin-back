@@ -13,7 +13,12 @@ router.use(authenticateToken);
 router.use(requireAdmin);
 
 // GET /messages - получить все сообщения с фильтрацией
-router.get('/', (req, res) => messageController.getMessages(req, res));
+router.get('/', (req, res) => {
+  if (!process.env.DATABASE_URL) {
+    return res.status(503).json({ error: 'Database not configured' });
+  }
+  messageController.getMessages(req, res);
+});
 
 // GET /messages/:id - получить сообщение по ID
 router.get('/:id', (req, res) => messageController.getMessageById(req, res));
