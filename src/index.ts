@@ -38,7 +38,12 @@ const bindPort = () => {
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3005', 'http://localhost:3003'],
+  origin: [
+    'http://localhost:3000', 
+    'http://localhost:3005', 
+    'http://localhost:3003',
+    'https://tarot-tg-admin-front.onrender.com'
+  ],
   credentials: true
 }));
 app.use(morgan('combined'));
