@@ -14,6 +14,16 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3002;
 
+// Для Render важно правильно биндить порт
+const bindPort = () => {
+  const actualPort = parseInt(PORT as string, 10);
+  if (isNaN(actualPort)) {
+    console.error('❌ Invalid PORT:', PORT);
+    process.exit(1);
+  }
+  return actualPort;
+};
+
 // Middleware
 app.use(helmet());
 app.use(cors({
@@ -114,8 +124,9 @@ async function startServer() {
     }
 
     // Запускаем сервер
-    app.listen(PORT, () => {
-      console.log(`🚀 Admin backend server running on port ${PORT}`);
+    const serverPort = bindPort();
+    app.listen(serverPort, '0.0.0.0', () => {
+      console.log(`🚀 Admin backend server running on port ${serverPort}`);
       console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
     });
   } catch (error) {
