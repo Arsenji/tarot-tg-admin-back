@@ -16,11 +16,22 @@ const PORT = process.env.PORT || 3002;
 
 // Для Render важно правильно биндить порт
 const bindPort = () => {
-  const actualPort = parseInt(PORT as string, 10);
-  if (isNaN(actualPort)) {
-    console.error('❌ Invalid PORT:', PORT);
-    process.exit(1);
+  // Render автоматически устанавливает PORT, но иногда передает как строку "$PORT"
+  const portValue = process.env.PORT || '3002';
+  
+  // Если получена строка вида "$PORT", используем дефолтный порт
+  if (portValue === '$PORT' || portValue.includes('$')) {
+    console.log('⚠️ PORT variable contains $, using default port 3002');
+    return 3002;
   }
+  
+  const actualPort = parseInt(portValue, 10);
+  if (isNaN(actualPort)) {
+    console.error('❌ Invalid PORT:', portValue, 'fallback to 3002');
+    return 3002;
+  }
+  
+  console.log(`🔌 Using port: ${actualPort}`);
   return actualPort;
 };
 
